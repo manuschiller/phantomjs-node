@@ -104,18 +104,19 @@ export default class Phantom {
                 }
                 const json = message.substr(1);
 
+                // TODO: include better check for json content
                 if(json[0] === '{'){
                     this.logger.debug('Parsing: %s', json);
 
                     const parsedJson = JSON.parse(json);
                     const command = this.commands.get(parsedJson.id);
 
-                    if (command != null) {
+                    if (command !== null) {
                         // We have to handle buffers targeted at stdout separately
                         if(!command.params.includes('/dev/stdout/')) {
                             const deferred = command.deferred;
 
-                            if (deferred != null) {
+                            if (deferred !== null) {
                                 if (parsedJson.error === undefined) {
                                     deferred.resolve(parsedJson.response);
                                 } else {
@@ -142,6 +143,7 @@ export default class Phantom {
                     emitter.emit.apply(emitter, [event.type].concat(event.args));
                 }
             } else if (message && message.length > 0) {
+                // TODO: check for file contents against %PDF [...] %EOF
                 this.commands.forEach(command => {
                     if (command.params.includes('/dev/stdout/')) {
                         const deferred = command.deferred;
@@ -150,8 +152,6 @@ export default class Phantom {
                         } else {
                             deferred.reject();
                         }
-
-                        return;
                     }
                 });
             }
